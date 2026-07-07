@@ -35,10 +35,13 @@ jobs:
         CMAKE_EXTRA_FLAGS: ${{ matrix.platform.CMAKE_EXTRA_FLAGS }}
       run: |
         set BUILD_NUMBER=0
+
+        
         mkdir build
         cd build
 
         for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSINSTALL=%%i"
+
         if "%VSINSTALL%"=="" (
           echo Visual Studio installation was not found.
           exit /b 1
@@ -46,20 +49,23 @@ jobs:
 
         if /i "%ARCHITECTURE%"=="x86" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvars32.bat"
-          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\bin\clang-cl.exe"
+          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\x64\bin\clang-cl.exe"
+          set "COMPILER_TARGET=i686-pc-windows-msvc"
         ) else if /i "%ARCHITECTURE%"=="x64" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
           set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\x64\bin\clang-cl.exe"
+          set "COMPILER_TARGET=x86_64-pc-windows-msvc"
         ) else if /i "%ARCHITECTURE%"=="arm64" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvarsarm64.bat"
           set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\ARM64\bin\clang-cl.exe"
+          set "COMPILER_TARGET=aarch64-windows-msvc"
         ) else (
           echo Unsupported architecture: %ARCHITECTURE%
           exit /b 1
         )
 
         call "%VCVARS_PATH%"
-        cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="%COMPILER_PATH%" -DCMAKE_CXX_COMPILER="%COMPILER_PATH%" -DBUILD_NUMBER=%BUILD_NUMBER% %CMAKE_EXTRA_FLAGS% ..
+        cmake -S .. -G "Ninja" -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER="%COMPILER_PATH%" -DCMAKE_CXX_COMPILER="%COMPILER_PATH%" -DCMAKE_C_COMPILER_TARGET="%COMPILER_TARGET%" -DCMAKE_CXX_COMPILER_TARGET="%COMPILER_TARGET%" -DBUILD_NUMBER=%BUILD_NUMBER% %CMAKE_EXTRA_FLAGS% ..
         cmake --build .
         mkdir installers
         vpnsetup /SFXMODE:vpnclient /SFXOUT:"installers\softether-vpnclient-%VERSION%.%BUILD_NUMBER%.%ARCHITECTURE%.exe"
