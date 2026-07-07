@@ -35,10 +35,14 @@ jobs:
         CMAKE_EXTRA_FLAGS: ${{ matrix.platform.CMAKE_EXTRA_FLAGS }}
       run: |
         set BUILD_NUMBER=0
+
+        
         mkdir build
         cd build
 
         for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSINSTALL=%%i"
+        where /r "C:" "clang-cl.exe"
+
         if "%VSINSTALL%"=="" (
           echo Visual Studio installation was not found.
           exit /b 1
