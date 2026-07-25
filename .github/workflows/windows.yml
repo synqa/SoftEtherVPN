@@ -40,7 +40,9 @@ jobs:
         mkdir build
         cd build
 
+        where /r "C:" "vswhere.exe"
         for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSINSTALL=%%i"
+        where /r "C:" "vswhere.exe"
 
         if "%VSINSTALL%"=="" (
           echo Visual Studio installation was not found.
