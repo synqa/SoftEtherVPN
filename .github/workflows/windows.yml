@@ -41,7 +41,6 @@ jobs:
         cd build
 
         for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSINSTALL=%%i"
-        where /r "C:" "clang-cl.exe"
 
         if "%VSINSTALL%"=="" (
           echo Visual Studio installation was not found.
@@ -50,10 +49,10 @@ jobs:
 
         if /i "%ARCHITECTURE%"=="x86" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvars32.bat"
-          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\bin\clang-cl.exe"
+          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x86\cl.exe"
         ) else if /i "%ARCHITECTURE%"=="x64" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
-          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\x64\bin\clang-cl.exe"
+          set "COMPILER_PATH=%VSINSTALL%\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64\cl.exe"
         ) else if /i "%ARCHITECTURE%"=="arm64" (
           set "VCVARS_PATH=%VSINSTALL%\VC\Auxiliary\Build\vcvarsarm64.bat"
           set "COMPILER_PATH=%VSINSTALL%\VC\Tools\Llvm\ARM64\bin\clang-cl.exe"
